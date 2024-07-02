@@ -1,0 +1,5 @@
+{
+  "type": "module",
+  "require": ["esm", "chai/register-expect"],
+  "spec": "testExemple/**/*.test.js"  
+}
