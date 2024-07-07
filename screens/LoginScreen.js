@@ -1,7 +1,8 @@
-// screens/LoginScreen.js
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { auth, signInWithEmailAndPassword } from '../firebase';
+
+import logo from '../assets/LogoNewChef.png'; // Importer votre logo depuis le dossier assets
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -17,6 +18,7 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <Text> <Image source={logo} style={styles.logo} /> {/* Afficher votre logo */}</Text>
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -44,8 +46,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 16,
+    alignItems: 'center',
     backgroundColor: '#f8f8f8',
+  },
+  logo: {
+    width: 150,
+    height: 150,
+    marginBottom: 20,
   },
   input: {
     height: 40,
@@ -55,6 +62,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 4,
     backgroundColor: '#fff',
+    width: '80%', // Ajuster la largeur de l'input selon vos besoins
   },
   linkText: {
     marginTop: 16,
