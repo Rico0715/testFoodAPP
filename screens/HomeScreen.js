@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, ScrollView, FlatList, Dimensions } from 'react-native';
-import { Button, Card, Image } from 'react-native-elements';
+import { StyleSheet, Text, TouchableOpacity, View, FlatList, Dimensions, Image } from 'react-native';
+import { Button, Card } from 'react-native-elements';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 
 const numColumns = 2;
@@ -9,7 +9,6 @@ const screenWidth = Dimensions.get('window').width;
 function HomeScreen({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const [facing, setFacing] = useState('back');
   const [productData, setProductData] = useState(null);
   const [recipes, setRecipes] = useState([]);
 
@@ -86,35 +85,38 @@ function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       {!scanned ? (
-        <BarCodeScanner
-          onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-          style={StyleSheet.absoluteFillObject}
-        >
-          
-        </BarCodeScanner>
+        <View style={styles.scannerContainer}>
+          <Image source={require('../assets/LogoNewChef.png')} style={styles.logo} />
+          <View style={styles.barcodeScannerContainer}>
+            <BarCodeScanner
+              onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+              style={styles.barcodeScanner}
+            />
+          </View>
+          <View style={styles.scanBox}>
+            <Text style={styles.scanText}>Place the barcode within the frame to scan</Text>
+          </View>
+        </View>
       ) : (
         <View style={styles.contentContainer}>
           {productData ? (
-             <Card containerStyle={styles.productCard}>
-             <Card.Title>{productData.product_name}</Card.Title>
-             <Card.Divider />
-             <Text style={styles.text}>Nom produit : {productData.generic_name_en}</Text>
-             <Text style={styles.text}>Marque : {productData.brands}</Text>
-             {productData.nutrition_grades ? (
-               <Text style={styles.text}>Nutri-Score : {productData.nutrition_grades.toUpperCase()}</Text>
-             ) : (
-               <Text style={styles.text}>Nutri-Score : N/A</Text>
-             )}
-             <Button title="Scan Again" onPress={() => setScanned(false)} />
-             
-           </Card>
+            <Card containerStyle={styles.productCard}>
+              <Card.Title>{productData.product_name}</Card.Title>
+              <Card.Divider />
+              <Text style={styles.text}>Product Name : {productData.generic_name_en}</Text>
+              <Text style={styles.text}>Brand : {productData.brands}</Text>
+              {productData.nutrition_grades ? (
+                <Text style={styles.text}>Nutri-Score : {productData.nutrition_grades.toUpperCase()}</Text>
+              ) : (
+                <Text style={styles.text}>Nutri-Score : N/A</Text>
+              )}
+              <Button title="Scan Again" onPress={() => setScanned(false)} />
+            </Card>
           ) : (
-            <Text style={styles.text}>Chargement des données du produit...</Text>
-            
+            <Text style={styles.text}>Loading product data...</Text>
           )}
-          <Text style={styles.text}>Mes recettes :</Text>
+          <Text style={styles.text}>My recipes :</Text>
           <FlatList
-
             data={recipes}
             renderItem={renderRecipe}
             keyExtractor={(item) => item.id.toString()}
@@ -132,24 +134,55 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#f2f5f6',
+  },
+  scannerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    position: 'relative', // Ajout d'une position relative au conteneur principal
+  },
+  logo: {
+    width: 250,
+    height: 250,
+    marginBottom: 20,
+    marginTop: 50, // Augmentation de la marge supérieure pour placer le logo plus haut
+    position: 'absolute', // Position absolue pour le logo
+    top: 0, // Alignement en haut du conteneur principal
+  },
+  barcodeScannerContainer: {
+    width: 300,
+    height: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  barcodeScanner: {
+    width: '100%', // Utilisation de '100%' pour occuper toute la largeur du parent
+    height: '100%',
+  },
+  scanBox: {
+    position: 'absolute',
+    width: 300,
+    height: 100,
+    borderWidth: 2,
+    borderColor: '#fff',
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    top: '50%', // Centrage vertical du scanBox
+    marginTop: -50, // Ajustement négatif de la moitié de la hauteur pour centrer exactement
+  },
+  scanText: {
+    color: '#fff',
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 10,
   },
   contentContainer: {
     flex: 1,
     width: '100%',
     padding: 20,
-        alignItems: 'center', // Ajout de cette ligne
-
-  },
-  buttonContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
-    margin: 64,
-  },
-  button: {
-    flex: 1,
-    alignSelf: 'flex-end',
     alignItems: 'center',
   },
   text: {
@@ -167,7 +200,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     marginBottom: 20,
     width: (screenWidth - 80) / numColumns,
-    backgroundColor:'white',
+    backgroundColor: 'white',
   },
   recipeImage: {
     width: '100%',
@@ -175,22 +208,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   recipeList: {
-     justifyContent: 'center', // Centrer verticalement
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: "space-around",
-    width: '100%' ,
+    justifyContent: 'space-around',
+    width: '100%',
     maxWidth: '100%',
-    marginTop:50,
-    position: 'fixed', /* or absolute, fixed, or sticky */
-    zIndex: 10,
+    marginTop: 50,
   },
   productCard: {
-    width: '98%', // Réduire la largeur de cette carte spécifique
+    width: '98%',
     alignSelf: 'center',
     padding: 20,
   },
-
-  
 });
 
 export default HomeScreen;
