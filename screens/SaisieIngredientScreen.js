@@ -52,7 +52,7 @@ function SaisieIngredientScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f2f5f6',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,

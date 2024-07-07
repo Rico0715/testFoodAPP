@@ -1,55 +1,57 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, TouchableOpacity } from 'react-native';
-import { firestore, auth } from '../firebase';
+import { StyleSheet, Text, View, ScrollView, Linking, Button } from 'react-native';
+import { Image } from 'react-native-elements';
+import { firestore } from '../firebase'; // Assurez-vous d'importer correctement firestore
 import { doc, getDoc } from 'firebase/firestore';
-
-export default function FavoriteRecipes() {
+import { auth } from '../firebase';
+export default function FavoriteRecipesScreen({ navigation }) {
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
 
   useEffect(() => {
     const fetchFavoriteRecipes = async () => {
-      const user = auth.currentUser;
-      if (user) {
-        const docRef = doc(firestore, 'favoriteRecipes', user.uid);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (data.recipes && Array.isArray(data.recipes)) {
-            setFavoriteRecipes(data.recipes);
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          const docRef = doc(firestore, 'favoriteRecipes', user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setFavoriteRecipes(data.recipes || []);
           } else {
-            setFavoriteRecipes([]);
+            console.log('No favorite recipes found for this user.');
           }
-        } else {
-          setFavoriteRecipes([]);
         }
+      } catch (error) {
+        console.error('Error fetching favorite recipes:', error);
       }
     };
 
     fetchFavoriteRecipes();
   }, []);
 
-  const handleRecipePress = (recipe) => {
-    console.log(recipe); // Remplacez cette fonction par ce que vous voulez faire lorsque l'utilisateur clique sur un bouton de recette
+  const navigateToRecipeDetails = (recipeId) => {
+    navigation.navigate('Recipe', { recipeId });
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Recettes favorites:</Text>
-      {favoriteRecipes.length > 0 ? (
-        favoriteRecipes.map((recipe, index) => (
-          <View key={index} style={styles.favoriteRecipeContainer}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => handleRecipePress(recipe)}
-            >
-              <Text style={styles.buttonText}>{recipe.title}</Text>
-            </TouchableOpacity>
-          </View>
-        ))
-      ) : (
-        <Text style={styles.text}>Aucune recette favorite enregistrée.</Text>
-      )}
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        {favoriteRecipes.length > 0 ? (
+          favoriteRecipes.map((recipe, index) => (
+            <View key={index} style={styles.recipeItem}>
+              <Text style={styles.recipeTitle}>{recipe.title}</Text>
+              {recipe.image ? (
+                <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
+              ) : (
+                <Text style={styles.text}>Aucune image disponible</Text>
+              )}
+              <Button title="Voir recette" onPress={() => navigateToRecipeDetails(recipe.recipeId)} />
+            </View>
+          ))
+        ) : (
+          <Text style={styles.text}>Aucune recette favorite trouvée.</Text>
+        )}
+      </ScrollView>
     </View>
   );
 }
@@ -58,28 +60,39 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f0f0f0',
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+  },
+  recipeItem: {
+    marginBottom: 20,
+    backgroundColor: '#fff',
     padding: 20,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
   },
-  label: {
-    fontSize: 18,
+  recipeTitle: {
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  text: {
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  favoriteRecipeContainer: {
     marginBottom: 10,
   },
-  button: {
-    backgroundColor: '#3498db',
-    padding: 10,
-    borderRadius: 5,
+  recipeImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+    marginBottom: 10,
   },
-  buttonText: {
+  text: {
     fontSize: 18,
-    color: '#fff',
+    fontWeight: 'bold',
+    color: '#333',
     textAlign: 'center',
+    marginTop: 20,
   },
 });

@@ -35,15 +35,24 @@ export default function ProfileScreen({ navigation }) {
     navigation.navigate('FavoriteRecipes');
   };
 
+  const handleLogout = async () => {
+    try {
+      await auth.signOut(); // Déconnexion de l'utilisateur
+      navigation.navigate('Login'); // Redirection vers l'écran de connexion
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Email:</Text>
       <Text style={styles.text}>{email}</Text>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={navigateToFavoriteRecipes}
-      >
+      <TouchableOpacity style={styles.button} onPress={navigateToFavoriteRecipes}>
         <Text style={styles.buttonText}>Mes Recettes</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.logoutButtonText}>Déconnexion</Text>
       </TouchableOpacity>
     </View>
   );
@@ -72,6 +81,17 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   buttonText: {
+    fontSize: 18,
+    color: '#fff',
+    textAlign: 'center',
+  },
+  logoutButton: {
+    backgroundColor: '#e74c3c',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 20,
+  },
+  logoutButtonText: {
     fontSize: 18,
     color: '#fff',
     textAlign: 'center',

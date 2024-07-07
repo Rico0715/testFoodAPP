@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, Linking, Button } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Linking, Button, ActivityIndicator, Dimensions } from 'react-native';
 import { Image } from 'react-native-elements';
-import { firestore, auth } from '../firebase'; // Assurez-vous d'importer correctement firestore et auth
+import { firestore, auth } from '../firebase';
 import { doc, getDoc, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+
+const { width } = Dimensions.get('window');
 
 export default function RecipeScreen({ route }) {
   const { recipeId } = route.params;
   const [recipe, setRecipe] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     const fetchRecipeDetails = async () => {
@@ -15,9 +19,11 @@ export default function RecipeScreen({ route }) {
         const response = await fetch(`https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${apiKey}`);
         const data = await response.json();
         setRecipe(data);
-        console.log('Recipe data fetched:', data); // Vérifiez les données récupérées dans la console
+        console.log('Recipe image URL test:', data.image); // Vérifiez que l'URL est correctement récupérée
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching recipe details:', error);
+        setLoading(false);
       }
     };
 
@@ -66,24 +72,37 @@ export default function RecipeScreen({ route }) {
     }
   };
 
-  if (!recipe) {
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  if (loading) {
     return (
       <View style={styles.container}>
-        <Text style={styles.text}>Chargement des détails de la recette...</Text>
+        <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
 
-  // Ajout du console.log pour vérifier l'URL de l'image
-  console.log('Recipe image URL:', recipe.image);
+  if (!recipe) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.text}>Erreur lors du chargement des détails de la recette.</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.recipeDetailsContainer}>
           <Text style={styles.recipeTitle}>{recipe.title}</Text>
-          {recipe.image ? (
-            <Image source={{ uri: recipe.image }} style={styles.recipeImageLarge} />
+          {recipe.image && !imageError ? (
+            <Image
+              source={{ uri: recipe.image }}
+              style={styles.recipeImageLarge}
+              onError={handleImageError}
+            />
           ) : (
             <Text style={styles.text}>Aucune image disponible</Text>
           )}
@@ -120,8 +139,10 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
+    alignItems: 'center',
   },
   recipeDetailsContainer: {
+    width: width - 40,
     padding: 20,
     alignItems: 'center',
   },
@@ -142,6 +163,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 16,
+    textAlign: 'center',
   },
   ingredientsContainer: {
     width: '100%',
@@ -162,5 +184,8 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 20,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
   },
 });

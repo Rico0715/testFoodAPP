@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#f2f5f6',
   },
   logo: {
     width: 150,
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     width: '80%', // Ajuster la largeur de l'input selon vos besoins
   },
-  linkText: {
+  linkText: { 
     marginTop: 16,
     color: '#1e90ff',
     textAlign: 'center',
