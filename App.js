@@ -46,7 +46,7 @@ function AuthStack() {
 function ProfileStack() {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profile' }} />
+      <Stack.Screen name="UserProfile" component={ProfileScreen} options={{ title: 'Profile' }} />
       <Stack.Screen name="FavoriteRecipes" component={FavoriteRecipes} options={{ title: 'Mes Recettes' }} />
     </Stack.Navigator>
   );
